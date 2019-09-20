@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "amqplib": "^0.5.5",
+    "chalk": "^2.4.2",
+    "commander": "^3.0.1"
+  }
+}
