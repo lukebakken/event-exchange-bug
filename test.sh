@@ -14,29 +14,35 @@ yarn
 cd ..
 
 node consumer > _output &
-CONSUMER_PID=$!
-
-sleep 2
-
-# for i in 2 3 4; do
-for i in 2 3
-do
-    # node consumer/conn -q 567$i 1
-    node consumer/conn 567$i 1
-done
+declare -ri consumer_pid="$!"
 
 echo 'Sleeping 2 seconds...'
 sleep 2
 
-echo "Killing consumer pid $CONSUMER_PID..."
-kill $CONSUMER_PID
-wait $CONSUMER_PID
+declare -ri start_port=5672
+declare -ri num_consumers=3
+declare -ri end_port="$((start_port + num_consumers))"
+declare -i port=0
+
+for ((port = start_port; port < end_port; port++))
+do
+    node consumer/conn "$port" 1 &
+done
+
+echo 'Sleeping 5 seconds...'
+sleep 5
+
+echo "Killing consumer pid $consumer_pid..."
+kill "$consumer_pid"
+wait "$consumer_pid"
 
 readonly create_events="$(grep -E '^created' _output | wc -l)"
 readonly close_events="$(grep -E '^closed' _output | wc -l)"
 
 echo
-if [[ $create_events -ne 2 ]] || [[ $close_events -ne 2 ]]; then
+
+if [[ $create_events -ne $num_consumers ]] || [[ $close_events -ne $num_consumers ]]
+then
     echo --- MISSING EVENTS ---
     echo
     exit 1

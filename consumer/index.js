@@ -11,14 +11,14 @@ function handleMsg(msg) {
 }
 
 async function main() {
-  const conn = await amqp.connect('amqp://localhost/');
-  console.log(chalk.bold.green('CONSUMER CONNECTED'));
-  const channel = await conn.createConfirmChannel();
-  const tempQueue = await channel.assertQueue('', { exclusive: true, autoDelete: true });
-
-  await channel.bindQueue(tempQueue.queue, eventExchange, '#', {});
-  channel.consume(tempQueue.queue, handleMsg, { noAck: true });
-  console.log(chalk.bold.green('CONSUMER READY'));
+    const conn = await amqp.connect('amqp://localhost/');
+    console.log(chalk.bold.green('CONSUMER CONNECTED'));
+    // const channel = await conn.createConfirmChannel();
+    const channel = await conn.createChannel();
+    const tempQueue = await channel.assertQueue('', { exclusive: true, autoDelete: true });
+    await channel.bindQueue(tempQueue.queue, eventExchange, '#', {});
+    channel.consume(tempQueue.queue, handleMsg, { noAck: true });
+    console.log(chalk.bold.green('CONSUMER READY'));
 }
 
 try {
