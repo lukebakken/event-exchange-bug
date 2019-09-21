@@ -13,11 +13,11 @@ program
   .option('-q, --quiet', 'No output')
   .action(async (port, delay, options) => {
     const conn = await amqp.connect(`amqp://localhost:${port}/`);
-    if (!options.quiet) console.log(chalk.bold.green('CONNECTED'));
+    if (!options.quiet) console.log(chalk.bold.green('PUBLISHER CONNECTED'));
     if (!options.quiet) console.log(`sleep ${delay}`);
     await sleep(delay);
-    if (!options.quiet) console.log('closing');
+    if (!options.quiet) console.log('PUBLISHER CLOSING');
     await conn.close();
-    if (!options.quiet) console.log(chalk.bold.green('CLOSED'));
+    if (!options.quiet) console.log(chalk.bold.green('PUBLISHER CLOSED'));
   })
   .parse(process.argv);

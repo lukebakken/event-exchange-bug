@@ -1,13 +1,13 @@
 #!/bin/bash
 
-if [[ -z "$1" ]]; then
-    echo "Usage: $0 <version>"
-    exit 1
-fi
+# if [[ -z "$1" ]]; then
+#     echo "Usage: $0 <version>"
+#     exit 1
+# fi
+# VERSION=$1
+# ./create-cluster.sh $VERSION
 
-VERSION=$1
-
-./create-cluster.sh $VERSION
+rm _output
 
 cd consumer
 yarn
@@ -18,20 +18,25 @@ CONSUMER_PID=$!
 
 sleep 2
 
-for i in 1 2 3; do
-    node consumer/conn -q 567$i 1
+# for i in 2 3 4; do
+for i in 2 3
+do
+    # node consumer/conn -q 567$i 1
+    node consumer/conn 567$i 1
 done
 
+echo 'Sleeping 2 seconds...'
+sleep 2
+
+echo "Killing consumer pid $CONSUMER_PID..."
 kill $CONSUMER_PID
 wait $CONSUMER_PID
 
-CREATE_EVENTS=$(grep created _output | wc -l)
-CLOSE_EVENTS=$(grep closed _output | wc -l)
-
-rm _output
+readonly create_events="$(grep -E '^created' _output | wc -l)"
+readonly close_events="$(grep -E '^closed' _output | wc -l)"
 
 echo
-if [[ $CREATE_EVENTS -ne 3 ]] || [[ $CLOSE_EVENTS -ne 3 ]]; then
+if [[ $create_events -ne 2 ]] || [[ $close_events -ne 2 ]]; then
     echo --- MISSING EVENTS ---
     echo
     exit 1
